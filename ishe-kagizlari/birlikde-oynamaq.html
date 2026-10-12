@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+  <meta charset="UTF-8" />
+  <title>Birlikdə oynamaq — əl yazısı, A4</title>
+  <style>
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/truetype/noto/NotoSans-Regular.ttf") format("truetype");
+      font-weight: 400;
+    }
+    @font-face {
+      font-family: "Noto Sans";
+      src: url("file:///usr/share/fonts/truetype/noto/NotoSans-Bold.ttf") format("truetype");
+      font-weight: 700;
+    }
+
+    * { box-sizing: border-box; }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #d9e2ec;
+      font-family: "Noto Sans", sans-serif;
+      color: #1d2b3a;
+    }
+
+    .page {
+      width: 210mm;
+      height: 297mm;
+      margin: 0 auto 8mm;
+      background: #fffdf8;
+      padding: 7mm 8mm 6.5mm;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .page::before {
+      content: "";
+      position: absolute;
+      inset: 3.2mm;
+      border: 1.15mm solid var(--accent);
+      border-radius: 4mm;
+      pointer-events: none;
+    }
+
+    .inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      padding: 3.2mm 3.4mm 2mm;
+      min-height: 0;
+    }
+
+    .meta {
+      display: flex;
+      justify-content: space-between;
+      gap: 8mm;
+      font-size: 11pt;
+      color: #3d5166;
+      margin-bottom: 2.2mm;
+    }
+    .meta span { white-space: nowrap; }
+    .blank {
+      display: inline-block;
+      border-bottom: 0.35mm solid #8aa0b8;
+      width: 58mm;
+      height: 4.2mm;
+      vertical-align: baseline;
+    }
+    .blank.short { width: 32mm; }
+
+    .title-row {
+      display: flex;
+      align-items: center;
+      gap: 3mm;
+      background: var(--title-bg);
+      border-radius: 5mm;
+      padding: 1.6mm 3.5mm 1.8mm 2mm;
+      margin-bottom: 2.4mm;
+    }
+    .badge {
+      flex: 0 0 auto;
+      width: 11mm;
+      height: 11mm;
+      border-radius: 50%;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 16pt;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1.1mm #ffe08a;
+    }
+    h1 {
+      margin: 0;
+      font-size: 16.5pt;
+      line-height: 1.15;
+      color: var(--accent-dark);
+      font-weight: 700;
+    }
+
+    .picture {
+      flex: 0 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 0 2.2mm;
+      max-height: var(--pic-h);
+    }
+    .picture img {
+      width: auto;
+      max-width: 100%;
+      max-height: var(--pic-h);
+      object-fit: contain;
+      display: block;
+      border-radius: 3mm;
+    }
+
+    .words {
+      flex: 0 0 auto;
+      background: #fff;
+      border: 0.4mm dashed var(--accent);
+      border-radius: 3mm;
+      padding: 1.6mm 2.6mm 2mm;
+      margin-bottom: 2mm;
+    }
+    .words-label {
+      font-size: 9.5pt;
+      font-weight: 700;
+      color: var(--accent-dark);
+      letter-spacing: 0.01em;
+      margin-bottom: 1.1mm;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 1.2mm 1.4mm; }
+    .chip {
+      background: var(--chip);
+      color: #1d2b3a;
+      border-radius: 99px;
+      padding: 0.7mm 2.4mm 0.9mm;
+      font-size: 11pt;
+      font-weight: 700;
+      line-height: 1.2;
+    }
+
+    .task {
+      flex: 0 0 auto;
+      margin: 0 0 1.4mm;
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: #245;
+    }
+
+    .lines {
+      flex: 0 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5mm;
+      margin: 0 0 2.4mm;
+    }
+    .hline {
+      position: relative;
+      margin-left: 7mm;
+      height: 15.2mm;
+      flex: none;
+    }
+    .hline .num {
+      position: absolute;
+      left: -7mm;
+      bottom: 0.2mm;
+      width: 6mm;
+      text-align: center;
+      font-size: 9pt;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .hline .rule {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 8.6mm;
+      border-top: 0.28mm solid #c9dcf3;
+      border-bottom: 0.45mm solid var(--line);
+      background-image: repeating-linear-gradient(
+        to right,
+        #f0a4b6 0 1.7mm,
+        transparent 1.7mm 3.5mm
+      );
+      background-size: auto 0.32mm;
+      background-repeat: repeat-x;
+      background-position: left 46%;
+    }
+
+    .callout {
+      flex: 0 0 auto;
+      margin-top: auto;
+      background: var(--callout);
+      color: var(--callout-text);
+      border-radius: 4mm;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12.5pt;
+      line-height: 1.25;
+      padding: 2.2mm 4mm 2.4mm;
+    }
+    .callout small {
+      display: block;
+      margin-top: 0.6mm;
+      font-size: 11pt;
+      font-weight: 700;
+    }
+
+    .p1 { --accent: #1f73e8; --accent-dark: #1558b8; --title-bg: #e7f2ff; --pic-bg: #f3f9ff; --chip: #d7ebff; --line: #1f73e8; --callout: #fff4c2; --callout-text: #1f5fbf; --pic-h: 64mm; }
+    .p2 { --accent: #1f9d4a; --accent-dark: #157a38; --title-bg: #e7f8ec; --pic-bg: #f3fbf5; --chip: #d7f3e0; --line: #1f9d4a; --callout: #e5f4ff; --callout-text: #14607a; --pic-h: 72mm; }
+    .p3 { --accent: #c43b86; --accent-dark: #9c2468; --title-bg: #fde8f3; --pic-bg: #fff5fa; --chip: #ffd6ea; --line: #c43b86; --callout: #efe4ff; --callout-text: #6a3bb5; --pic-h: 78mm; }
+    .p2 .lines, .p3 .lines {
+      flex: 1 1 auto;
+      justify-content: space-between;
+      min-height: 0;
+    }
+    .p2 .hline, .p3 .hline {
+      height: auto;
+      flex: 1 1 0;
+      max-height: 34mm;
+    }
+    .p4 { --accent: #ef7a12; --accent-dark: #c45e08; --title-bg: #fff1e0; --pic-bg: #f3f8ff; --chip: #ffe0bf; --line: #ef7a12; --callout: #ffe0ef; --callout-text: #c2185b; --pic-h: 62mm; }
+
+    @media print {
+      html, body { background: white; }
+      .page { margin: 0; page-break-after: always; }
+      .page:last-child { page-break-after: auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <section class="page p1">
+    <div class="inner">
+      <div class="meta">
+        <span>Ad, soyad: <i class="blank"></i></span>
+        <span>Tarix: <i class="blank short"></i></span>
+      </div>
+      <div class="title-row">
+        <div class="badge">1</div>
+        <h1>Birlikdə oynamaq bizə nə verir?</h1>
+      </div>
+      <div class="picture">
+        <img src="sekiller/sekil-1-futbol.jpg" alt="Uşaqlar birlikdə futbol oynayır" />
+      </div>
+      <div class="words">
+        <div class="words-label">Şəklə uyğun sözlər</div>
+        <div class="chips">
+          <span class="chip">oyunlar</span>
+          <span class="chip">uşaqlar</span>
+          <span class="chip">sağlam</span>
+          <span class="chip">böyümə</span>
+          <span class="chip">dostluq</span>
+          <span class="chip">tanımaq</span>
+          <span class="chip">kömək</span>
+          <span class="chip">birlikdə</span>
+          <span class="chip">mehriban</span>
+          <span class="chip">səbirli</span>
+          <span class="chip">diqqətli</span>
+          <span class="chip">qayğıkeş</span>
+          <span class="chip">öyrədir</span>
+        </div>
+      </div>
+      <p class="task">Şəklə və sözlərə bax. Mətni 7 xəttə öz əlinlə yaz.</p>
+      <div class="lines">
+        <div class="hline"><span class="num">1</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">2</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">3</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">4</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">5</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">6</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">7</span><div class="rule"></div></div>
+      </div>
+      <div class="callout">Birlikdə oynamaq bizim üçün çox vacibdir!</div>
+    </div>
+  </section>
+
+  <section class="page p2">
+    <div class="inner">
+      <div class="meta">
+        <span>Ad, soyad: <i class="blank"></i></span>
+        <span>Tarix: <i class="blank short"></i></span>
+      </div>
+      <div class="title-row">
+        <div class="badge">2</div>
+        <h1>Kollektiv oyunlar</h1>
+      </div>
+      <div class="picture">
+        <img src="sekiller/sekil-2-oyunlar.jpg" alt="Futbol, ipçəkmə və estafet" />
+      </div>
+      <div class="words">
+        <div class="words-label">Şəklə uyğun sözlər</div>
+        <div class="chips">
+          <span class="chip">futbol</span>
+          <span class="chip">voleybol</span>
+          <span class="chip">estafet yarışı</span>
+          <span class="chip">ipçəkmə</span>
+          <span class="chip">komanda oyunları</span>
+          <span class="chip">kollektiv</span>
+          <span class="chip">birlikdə</span>
+          <span class="chip">qayda</span>
+          <span class="chip">kömək</span>
+          <span class="chip">uşaqlar</span>
+        </div>
+      </div>
+      <p class="task">Şəklə və sözlərə bax. Mətni 3 xəttə öz əlinlə yaz.</p>
+      <div class="lines">
+        <div class="hline"><span class="num">1</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">2</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">3</span><div class="rule"></div></div>
+      </div>
+      <div class="callout">Kollektiv oyunlar bizi daha güclü, daha bacarıqlı və daha mehriban edir.</div>
+    </div>
+  </section>
+
+  <section class="page p3">
+    <div class="inner">
+      <div class="meta">
+        <span>Ad, soyad: <i class="blank"></i></span>
+        <span>Tarix: <i class="blank short"></i></span>
+      </div>
+      <div class="title-row">
+        <div class="badge">3</div>
+        <h1>Birlikdə kollektiv hərəkətlərin yerinə yetirilməsi</h1>
+      </div>
+      <div class="picture">
+        <img src="sekiller/sekil-3-herket.jpg" alt="Uşaqlar birlikdə gimnastika edir" />
+      </div>
+      <div class="words">
+        <div class="words-label">Şəklə uyğun sözlər</div>
+        <div class="chips">
+          <span class="chip">səhər gimnastikası</span>
+          <span class="chip">əl və ayaq hərəkətləri</span>
+          <span class="chip">rəqs</span>
+          <span class="chip">sıra ilə yerimək</span>
+          <span class="chip">estafet</span>
+          <span class="chip">birlikdə</span>
+          <span class="chip">eyni vaxtda</span>
+          <span class="chip">çevik</span>
+          <span class="chip">diqqətli</span>
+          <span class="chip">nizamlı</span>
+        </div>
+      </div>
+      <p class="task">Şəklə və sözlərə bax. Mətni 3 xəttə öz əlinlə yaz.</p>
+      <div class="lines">
+        <div class="hline"><span class="num">1</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">2</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">3</span><div class="rule"></div></div>
+      </div>
+      <div class="callout">Birlikdə hərəkət etmək bizə güc verir!</div>
+    </div>
+  </section>
+
+  <section class="page p4">
+    <div class="inner">
+      <div class="meta">
+        <span>Ad, soyad: <i class="blank"></i></span>
+        <span>Tarix: <i class="blank short"></i></span>
+      </div>
+      <div class="title-row">
+        <div class="badge">4</div>
+        <h1>Birlikdə olduğumuz zaman nələrə nail oluruq?</h1>
+      </div>
+      <div class="picture">
+        <img src="sekiller/sekil-4-komanda.jpg" alt="Uşaqlar əllərini bir yerə qoyur" />
+      </div>
+      <div class="words">
+        <div class="words-label">Şəklə uyğun sözlər</div>
+        <div class="chips">
+          <span class="chip">dostluq</span>
+          <span class="chip">bədən</span>
+          <span class="chip">sağlam</span>
+          <span class="chip">güclü</span>
+          <span class="chip">kömək</span>
+          <span class="chip">diqqət</span>
+          <span class="chip">çeviklik</span>
+          <span class="chip">komanda ruhu</span>
+          <span class="chip">oyunlar</span>
+          <span class="chip">hərəkətlər</span>
+          <span class="chip">sayəsində</span>
+        </div>
+      </div>
+      <p class="task">Şəklə və sözlərə bax. Mətni 7 xəttə öz əlinlə yaz.</p>
+      <div class="lines">
+        <div class="hline"><span class="num">1</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">2</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">3</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">4</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">5</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">6</span><div class="rule"></div></div>
+        <div class="hline"><span class="num">7</span><div class="rule"></div></div>
+      </div>
+      <div class="callout">
+        Birlikdə oynamaq, bizim daha xoşbəxt olmağımıza kömək edir!
+        <small>Unutma! Komanda həmişə qazanır!</small>
+      </div>
+    </div>
+  </section>
+
+</body>
+</html>
