@@ -1,0 +1,167 @@
+{
+  "info": {
+    "_postman_id": "b7e1c4a2-6d3f-4a91-9c2e-0f5a6b7c8d9e",
+    "name": "Meqa PolicyPaymentsSvc",
+    "description": "Meqa PolicyPaymentsSvc (ASMX). Əvvəl «1. WSDL» göndərilir: skript targetNamespace və GetPolicyInfo2 soapAction dəyərlərini kolleksiya dəyişənlərinə yazır. Sonra «2. GetPolicyInfo2». userName və password yalnız Postman dəyişənlərində doldurulur. EnableSession=true olduğu üçün cookie jar açıq qalmalıdır.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. WSDL",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('WSDL HTTP 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "const text = pm.response.text();",
+              "pm.test('WSDL XML-dir', function () {",
+              "    pm.expect(text).to.include('definitions');",
+              "});",
+              "",
+              "const nsMatch = text.match(/targetNamespace=\"([^\"]+)\"/);",
+              "if (nsMatch) {",
+              "    let ns = nsMatch[1];",
+              "    if (!ns.endsWith('/')) {",
+              "        ns += '/';",
+              "    }",
+              "    pm.collectionVariables.set('soapNamespace', ns);",
+              "    console.log('soapNamespace=' + ns);",
+              "}",
+              "",
+              "const actionMatch = text.match(/soap:operation[^>]*soapAction=\"([^\"]*GetPolicyInfo2)\"/) || text.match(/soapAction=\"([^\"]*GetPolicyInfo2)\"/);",
+              "if (actionMatch) {",
+              "    pm.collectionVariables.set('soapAction', actionMatch[1]);",
+              "    console.log('soapAction=' + actionMatch[1]);",
+              "}",
+              "",
+              "const ops = [];",
+              "const opRe = /<s:element name=\"([^\"]+)\">/g;",
+              "let opMatch;",
+              "while ((opMatch = opRe.exec(text)) !== null) {",
+              "    if (ops.indexOf(opMatch[1]) === -1 && !/Response$/.test(opMatch[1])) {",
+              "        ops.push(opMatch[1]);",
+              "    }",
+              "}",
+              "console.log('operations=' + ops.join(', '));"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "text/xml"
+          }
+        ],
+        "url": "{{baseUrl}}?wsdl",
+        "description": "Servisin WSDL-i. Uğurlu cavab soapNamespace və soapAction dəyişənlərini doldurur. Konsolda əməliyyat adları görünür."
+      },
+      "response": []
+    },
+    {
+      "name": "2. GetPolicyInfo2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "const body = pm.response.text();",
+              "",
+              "pm.test('HTTP 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('SOAP Fault yoxdur', function () {",
+              "    pm.expect(body).to.not.include('<soap:Fault');",
+              "    pm.expect(body).to.not.include('<Fault');",
+              "});",
+              "",
+              "pm.test('GetPolicyInfo2Result var', function () {",
+              "    pm.expect(body).to.include('GetPolicyInfo2Result');",
+              "});",
+              "",
+              "function decodeXml(value) {",
+              "    return value",
+              "        .replace(/&lt;/g, '<')",
+              "        .replace(/&gt;/g, '>')",
+              "        .replace(/&quot;/g, '\"')",
+              "        .replace(/&apos;/g, \"'\")",
+              "        .replace(/&amp;/g, '&');",
+              "}",
+              "",
+              "const resultMatch = body.match(/<GetPolicyInfo2Result[^>]*>([\\s\\S]*?)<\\/GetPolicyInfo2Result>/);",
+              "if (resultMatch && resultMatch[1]) {",
+              "    const inner = decodeXml(resultMatch[1]);",
+              "    pm.collectionVariables.set('lastPolicyXml', inner);",
+              "    console.log(inner);",
+              "}"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "text/xml; charset=utf-8"
+          },
+          {
+            "key": "SOAPAction",
+            "value": "\"{{soapAction}}\""
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n  <soap:Body>\n    <GetPolicyInfo2 xmlns=\"{{soapNamespace}}\">\n      <policyNumber>{{policyNumber}}</policyNumber>\n      <userName>{{userName}}</userName>\n      <password>{{password}}</password>\n    </GetPolicyInfo2>\n  </soap:Body>\n</soap:Envelope>\n",
+          "options": {
+            "raw": {
+              "language": "xml"
+            }
+          }
+        },
+        "url": "{{baseUrl}}",
+        "description": "GetPolicyInfo2. Əvvəl «1. WSDL» işlədilməlidir. policyNumber, userName və password kolleksiya dəyişənlərindədir. Uğurlu cavabın daxili XML-i konsola və lastPolicyXml dəyişəninə yazılır."
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "https://insure.meqasigorta.az/InsureazService/PolicyPaymentsSvc.asmx"
+    },
+    {
+      "key": "soapNamespace",
+      "value": "http://tempuri.org/"
+    },
+    {
+      "key": "soapAction",
+      "value": "http://tempuri.org/GetPolicyInfo2"
+    },
+    {
+      "key": "policyNumber",
+      "value": ""
+    },
+    {
+      "key": "userName",
+      "value": ""
+    },
+    {
+      "key": "password",
+      "value": ""
+    },
+    {
+      "key": "lastPolicyXml",
+      "value": ""
+    }
+  ]
+}
